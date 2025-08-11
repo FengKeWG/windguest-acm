@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+#define int long long
+#define ull unsigned long long
+#define endl '\n'
+#define MAXN 100005
+#define MOD 1000000007
+#define eps 1e-6
+#define INF LLONG_MAX
+#define mid ((t[r].l + t[r].r) >> 1)
+#define lson (r << 1)
+#define rson (r << 1 | 1)
+using namespace std;
+
+inline int read()
+{
+    int x = 0, f = 1;
+    char c = getchar();
+    while (c < '0' || c > '9')
+    {
+        if (c == '-')
+            f = -1;
+        c = getchar();
+    }
+    while (c >= '0' && c <= '9')
+    {
+        x = (x << 1) + (x << 3) + (c ^ 48);
+        c = getchar();
+    }
+    return x * f;
+}
+
+signed main()
+{
+    cin.tie(0)->sync_with_stdio(0);
+    int n = read();
+    int sum = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int tmp = read();
+        sum += tmp;
+    }
+    int l = (sum - n * (n - 1) / 2) / n + 1;
+    sum = l * n + n * (n - 1) / 2 - sum;
+    for (int i = 0; i < n; i++)
+    {
+        if (n - i <= sum)
+            cout << l + i - 1 << " ";
+        else
+            cout << l + i << " ";
+    }
+    return 0;
+}
