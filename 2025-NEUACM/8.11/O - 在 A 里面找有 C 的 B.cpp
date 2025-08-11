@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
-#define int long long
+// #define int long long
 #define endl '\n'
-#define N 200005
+#define N 500005
 #define M 100005
 #define mod 1000000007
 #define eps 1e-6
@@ -33,9 +33,11 @@ inline int read()
 int n, idx;
 char s[N];
 int ch[N][26];
-int ne[N], cnt[N];
+int ne[N];
+vector<int> pos[N];
+bool vis[M];
 
-void insert(char *s)
+void insert(char *s, int id)
 {
     int p = 0;
     for (int i = 0; s[i]; i++)
@@ -45,7 +47,7 @@ void insert(char *s)
             ch[p][j] = ++idx;
         p = ch[p][j];
     }
-    cnt[p]++;
+    pos[p].push_back(id);
 }
 
 void build()
@@ -69,27 +71,74 @@ void build()
     }
 }
 
-int query(char *s)
+void query(char *s)
 {
-    int ans = 0;
     for (int k = 0, i = 0; s[k]; k++)
     {
         i = ch[i][s[k] - 'a'];
-        for (int j = i; j && ~cnt[j]; j = ne[j])
-            ans += cnt[j], cnt[j] = -1;
+        for (int j = i; j; j = ne[j])
+            if (pos[j].size())
+                for (auto &x : pos[j])
+                    vis[x] = 1;
     }
-    return ans;
 }
 
-char p[N], r[N];
+char p[N], r[N], t[N];
+int Ne[N];
 
 signed main()
 {
     // cin.tie(0)->sync_with_stdio(0);
-    int T = read();
+    int T;
+    scanf("%d", &T);
     while (T--)
     {
-        scanf("%s%s", p + 1, r + 1);
+        int n = read();
+        memset(vis, 0, sizeof vis);
+        for (int i = 0; i <= idx; i++)
+        {
+            memset(ch[i], 0, sizeof ch[i]);
+            ne[i] = 0;
+            pos[i].clear();
+        }
+        idx = 0;
+        scanf("%s%s", p, r);
+        int m = strlen(r);
+        Ne[0] = 0;
+        for (int i = 1, j = 0; i < m; i++)
+        {
+            while (j && r[i] != r[j])
+                j = Ne[j - 1];
+            if (r[i] == r[j])
+                ++j;
+            Ne[i] = j;
+        }
+        for (int k = 1; k <= n; k++)
+        {
+            scanf("%s%s", s, t);
+            int l = strlen(t);
+            bool can = 0;
+            for (int i = 0, j = 0; i < l; i++)
+            {
+                while (j && t[i] != r[j])
+                    j = Ne[j - 1];
+                if (t[i] == r[j])
+                    ++j;
+                if (j == m)
+                {
+                    can = 1;
+                    break;
+                }
+            }
+            if (can)
+                insert(s, k);
+        }
+        build();
+        query(p);
+        for (int i = 1; i <= n; i++)
+            if (vis[i])
+                cout << i << ' ';
+        cout << endl;
     }
     return 0;
 }

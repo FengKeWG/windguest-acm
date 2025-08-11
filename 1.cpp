@@ -1,74 +1,164 @@
-#include <iostream>
-#include <cstring>
-#include <algorithm>
-#include <vector>
+#include <bits/stdc++.h>
+#define int long long
+#define endl '\n'
+#define N 200005
+#define M 100005
+#define mod 1000000007
+#define eps 1e-6
+#define inf 0x3f3f3f3f3f
+#define pii pair<int, int>
+// #define mid (t[r].l + t[r].r >> 1)
+// #define ls (r << 1)
+// #define rs (r << 1 | 1)
 using namespace std;
 
-typedef long long LL;
-const int N = 2e6 + 10;
-char str[N];
-vector<int> e[N]; // 邻接表
-LL cnt[N], ans;
-int tot = 1, np = 1;
-// fa链接边终点,ch转移边终点,len最长串长度
-int fa[N], ch[N][26], len[N];
-
-void extend(int c)
+inline int read()
 {
-    // p回跳指针, np新点, q链接点, nq新链接点
-    int p = np;
-    np = ++tot; // p指向旧点, np是新点
-    len[np] = len[p] + 1;
-    cnt[np] = 1; // 子串出现次数
-    // p沿链接边回跳，从旧点向新点建转移边
-    for (; p && !ch[p][c]; p = fa[p])
-        ch[p][c] = np;
+    int x = 0, f = 1;
+    char c = getchar();
+    while (c < '0' || c > '9')
+    {
+        if (c == '-')
+            f = -1;
+        c = getchar();
+    }
+    while (c >= '0' && c <= '9')
+    {
+        x = (x << 1) + (x << 3) + (c ^ 48);
+        c = getchar();
+    }
+    return x * f;
+}
 
-    // 1.如果c是新字符，从新点向根节点建链接边
-    if (p == 0)
-        fa[np] = 1;
-    else
-    {                     // 如果c是旧字符
-        int q = ch[p][c]; // q是链接点
-        // 2.若链接点合法，从新点向q建链接边
-        if (len[q] == len[p] + 1)
-            fa[np] = q;
-        // 3.若链接点不合法，则裂开q点，重建两类边
-        else
+int n, idx;
+char s[N];
+int ch[N][26];
+int ne[N], pos[N];
+bool vis[M]; // 新增：记录在 A 中出现且满足条件的 Bi
+
+void insert(char *s, int id)
+{
+    int p = 0;
+    for (int i = 0; s[i]; i++)
+    {
+        int j = s[i] - 'a';
+        if (!ch[p][j])
+            ch[p][j] = ++idx;
+        p = ch[p][j];
+    }
+    pos[p] = id;
+}
+
+void build()
+{
+    queue<int> q;
+    for (int i = 0; i < 26; i++)
+        if (ch[0][i])
+            q.push(ch[0][i]);
+    while (q.size())
+    {
+        int u = q.front();
+        q.pop();
+        for (int i = 0; i < 26; i++)
         {
-            int nq = ++tot; // nq是新链接点
-            len[nq] = len[p] + 1;
-            // 重建nq,q,np的链接边
-            fa[nq] = fa[q];
-            fa[q] = nq;
-            fa[np] = nq;
-            // 指向q的转移边改为指向nq
-            for (; p && ch[p][c] == q; p = fa[p])
-                ch[p][c] = nq;
-            // 从q发出的转移边复制给nq
-            memcpy(ch[nq], ch[q], sizeof(ch[q]));
+            int v = ch[u][i];
+            if (v)
+                ne[v] = ch[ne[u]][i], q.push(v);
+            else
+                ch[u][i] = ch[ne[u]][i];
         }
     }
 }
-void dfs(int u)
+
+void query(const char *str)
 {
-    for (auto v : e[u])
+    for (int i = 0, p = 0; str[i]; ++i)
     {
-        dfs(v);
-        cnt[u] += cnt[v];
+        p = ch[p][str[i] - 'a'];
+        for (int j = p; j; j = ne[j])
+        {
+            if (pos[j]) // 只处理有效标号
+                vis[pos[j]] = true;
+        }
     }
-    if (cnt[u] > 1)
-        ans = max(ans, cnt[u] * len[u]);
 }
-int main()
+
+char p[N], r[N], t[N];
+bool can[N];
+int Ne[N];
+
+signed main()
 {
-    scanf("%s", str);
-    for (int i = 0; str[i]; i++)
-        extend(str[i] - 'a');
-    for (int i = 2; i <= tot; i++)
-        e[fa[i]].push_back(i);
-    cout << len[7] << endl;
-    dfs(1);
-    printf("%lld\n", ans);
+    // 保持默认同步以免与 scanf 混用出现未定义行为
+
+    int T = read();
+    while (T--)
+    {
+        int n = read();
+
+        // 清空所有全局结构（上一次循环的残留）
+        idx = 0;
+        memset(ch, 0, sizeof(ch));
+        memset(ne, 0, sizeof(ne));
+        memset(pos, 0, sizeof(pos));
+        memset(vis, 0, sizeof(vis));
+        memset(can, 0, sizeof(can));
+
+        // 读取 A 与 C
+        scanf("%s%s", p, r); // p = A, r = C
+
+        int m = strlen(r);
+        // KMP 失败函数（0 基）
+        static int fail[N];
+        fail[0] = 0;
+        for (int i = 1, j = 0; i < m; ++i)
+        {
+            while (j && r[i] != r[j])
+                j = fail[j - 1];
+            if (r[i] == r[j])
+                ++j;
+            fail[i] = j;
+        }
+
+        // 读取 Bi 与 B'i
+        for (int id = 1; id <= n; ++id)
+        {
+            scanf("%s%s", s, t); // s = Bi, t = B'i
+
+            // 判断 B'i 是否包含 C（KMP 匹配）
+            int lenT = strlen(t), j = 0;
+            bool ok = false;
+            for (int k = 0; k < lenT; ++k)
+            {
+                while (j && t[k] != r[j])
+                    j = fail[j - 1];
+                if (t[k] == r[j])
+                    ++j;
+                if (j == m)
+                {
+                    ok = true;
+                    break;
+                }
+            }
+            can[id] = ok;
+            if (ok)
+                insert(s, id); // 只有满足条件时才插入 AC 自动机
+        }
+
+        build();
+        query(p); // 在 A 中查询
+
+        // 输出答案
+        bool first = true;
+        for (int i = 1; i <= n; ++i)
+            if (vis[i])
+            {
+                if (!first)
+                    printf(" ");
+                printf("%lld", (long long)i);
+                first = false;
+            }
+        printf("\n");
+    }
     return 0;
 }
