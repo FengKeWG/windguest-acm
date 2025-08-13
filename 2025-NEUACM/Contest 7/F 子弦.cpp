@@ -30,12 +30,18 @@ inline int read()
     return x * f;
 }
 
+string s;
+unordered_map<char, int> mp;
+
 signed main()
 {
     cin.tie(0)->sync_with_stdio(0);
-    freopen("1.txt", "w", stdout);
-    cout << 500000 << endl;
-    for (int i = 1; i <= 250000; i++)
-        cout << "ab";
+    cin >> s;
+    for (auto &c : s)
+        mp[c]++;
+    int ans = -inf;
+    for (auto &[c, x] : mp)
+        ans = max(ans, x);
+    cout << ans << endl;
     return 0;
 }

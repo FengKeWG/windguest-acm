@@ -1,15 +1,14 @@
 #include <bits/stdc++.h>
-// #define int long long
+#define int long long
 #define endl '\n'
 #define N 2000005
-#define M 100005
-#define mod 1000000007
+#define MOD 1000000007
 #define eps 1e-6
-#define inf 0x3f3f3f3f3f
+#define inf 0x3f3f3f3f
 #define pii pair<int, int>
-// #define mid (t[r].l + t[r].r >> 1)
-// #define ls (r << 1)
-// #define rs (r << 1 | 1)
+#define mid ((t[r].l + t[r].r) >> 1)
+#define ls (r << 1)
+#define rs (r << 1 | 1)
 using namespace std;
 
 inline int read()
@@ -30,11 +29,14 @@ inline int read()
     return x * f;
 }
 
-int cnt[N];
+char s[N];
+int cnt[N], ans;
 int tot = 1, np = 1;
-int fa[N];
-int ch[N][26];
-int len[N];
+int fa[N], ch[N][26], len[N];
+vector<int> e[N];
+int pos[N];
+int sz[N];
+int sum[N];
 
 void ext(int c)
 {
@@ -65,30 +67,40 @@ void ext(int c)
     }
 }
 
-char s[N];
-long long ans = -inf;
-vector<int> e[N];
-
-void dfs(int u)
+void dfs1(int u)
 {
     for (auto &v : e[u])
     {
-        dfs(v);
-        cnt[u] += cnt[v];
+        dfs1(v);
+        sz[u] += sz[v];
     }
-    if (cnt[u] > 1)
-        ans = max(ans, 1ll * len[u] * cnt[u]);
+}
+
+void dfs2(int u)
+{
+    if (fa[u])
+        sum[u] = sum[fa[u]] + (len[u] - len[fa[u]]) * sz[u];
+    for (auto &v : e[u])
+        dfs2(v);
 }
 
 signed main()
 {
-    cin.tie(0)->sync_with_stdio(0);
+    // cin.tie(0)->sync_with_stdio(0);
+    int n = read();
     scanf("%s", s);
-    for (int i = 0; s[i]; i++)
+    for (int i = n - 1; i >= 0; i--)
+    {
         ext(s[i] - 'a');
-    for (int i = 1; i <= tot; i++)
+        pos[i + 1] = np;
+    }
+    for (int i = 2; i <= tot; i++)
         e[fa[i]].push_back(i);
-    dfs(1);
-    cout << ans << endl;
+    for (int i = 1; i <= n; i++)
+        sz[pos[i]] = 1;
+    dfs1(1);
+    dfs2(1);
+    for (int i = 1; i <= n; i++)
+        cout << sum[pos[i]] << endl;
     return 0;
 }
