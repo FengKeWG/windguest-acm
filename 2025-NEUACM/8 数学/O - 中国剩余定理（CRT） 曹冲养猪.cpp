@@ -2,14 +2,13 @@
 #define int __int128
 #define endl '\n'
 #define N 100005
-#define M 100005
-#define mod 1000000007
+#define MOD 1000000007
 #define eps 1e-6
-#define inf 0x3f3f3f3f3f
+#define inf 0x3f3f3f3f
 #define pii pair<int, int>
-// #define mid (t[r].l + t[r].r >> 1)
-// #define ls (r << 1)
-// #define rs (r << 1 | 1)
+#define mid ((t[r].l + t[r].r) >> 1)
+#define ls (r << 1)
+#define rs (r << 1 | 1)
 using namespace std;
 
 void print(int x)
@@ -42,7 +41,8 @@ inline int read()
     return x * f;
 }
 
-int n, m[N], r[N];
+int n;
+int m[N], r[N];
 
 int exgcd(int a, int b, int &x, int &y)
 {
@@ -51,36 +51,31 @@ int exgcd(int a, int b, int &x, int &y)
         x = 1, y = 0;
         return a;
     }
-    int d, x1, y1;
-    d = exgcd(b, a % b, x1, y1);
+    int x1, y1, d = exgcd(b, a % b, x1, y1);
     x = y1, y = x1 - a / b * y1;
     return d;
 }
 
-int excrt(int m[], int r[])
+int crt()
 {
-    int m1, m2, r1, r2, p, q;
-    m1 = m[1], r1 = r[1];
-    for (int i = 2; i <= n; i++)
+    int M = 1, ans = 0;
+    for (int i = 1; i <= n; i++)
+        M *= m[i];
+    for (int i = 1; i <= n; i++)
     {
-        m2 = m[i], r2 = r[i];
-        int d = exgcd(m1, m2, p, q);
-        if ((r2 - r1) % d)
-            return -1;
-        p = p * (r2 - r1) / d;
-        p = (p % (m2 / d) + m2 / d) % (m2 / d);
-        r1 = m1 * p + r1;
-        m1 = m1 * m2 / d;
+        int c = M / m[i], x, y;
+        exgcd(c, m[i], x, y);
+        ans = (ans + r[i] * c * x % M) % M;
     }
-    return (r1 % m1 + m1) % m1;
+    return (ans % M + M) % M;
 }
 
 signed main()
 {
-    // cin.tie(0)->sync_with_stdio(0);
-    scanf("%lld", &n);
+    cin.tie(0)->sync_with_stdio(0);
+    n = read();
     for (int i = 1; i <= n; i++)
-        scanf("%lld%lld", m + i, r + i);
-    print(excrt(m, r));
+        m[i] = read(), r[i] = read();
+    print(crt());
     return 0;
 }

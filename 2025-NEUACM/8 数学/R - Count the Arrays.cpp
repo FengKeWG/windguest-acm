@@ -1,10 +1,8 @@
 #include <bits/stdc++.h>
 #define int long long
-// #define int unsigned long long
-// #define int __int128
 #define endl '\n'
-#define N 1007
-#define MOD 1000000007
+#define N 200005
+#define mod 998244353
 #define eps 1e-6
 #define inf 0x3f3f3f3f
 #define pii pair<int, int>
@@ -12,18 +10,6 @@
 #define lson (r << 1)
 #define rson (r << 1 | 1)
 using namespace std;
-
-void print(int x)
-{
-    if (x < 0)
-    {
-        putchar('-');
-        x = -x;
-    }
-    if (x > 9)
-        print(x / 10);
-    putchar(x % 10 + '0');
-}
 
 inline int read()
 {
@@ -43,11 +29,7 @@ inline int read()
     return x * f;
 }
 
-int p;
-int f[N], g[N]; // f[x] = x!(mod p), g[x] = (x!)^-1 (mod p)
-/*
-费马小定理 a^(p-1)≡1(mod p)
-*/
+int f[N], g[N];
 
 int qpow(int a, int b)
 {
@@ -55,8 +37,8 @@ int qpow(int a, int b)
     while (b)
     {
         if (b & 1)
-            res = res * a % p;
-        a = a * a % p;
+            res = res * a % mod;
+        a = a * a % mod;
         b >>= 1;
     }
     return res;
@@ -67,21 +49,26 @@ void init()
     f[0] = g[0] = 1;
     for (int i = 1; i < N; i++)
     {
-        f[i] = f[i - 1] * i % p;
-        g[i] = g[i - 1] * qpow(i, p - 2) % p;
+        f[i] = f[i - 1] * i % mod;
+        g[i] = g[i - 1] * qpow(i, mod - 2) % mod;
     }
 }
 
 int C(int a, int b)
 {
-    return f[a] * g[b] % p * g[a - b] % p;
+    return f[a] * g[b] % mod * g[a - b] % mod;
 }
 
 signed main()
 {
-    p = 10007;
     cin.tie(0)->sync_with_stdio(0);
+    int n = read(), m = read();
+    if (n == 2)
+    {
+        cout << 0 << endl;
+        return 0;
+    }
     init();
-    cout << C(3, 1);
+    cout << qpow(2, n - 3) % mod * C(m, n - 1) % mod * (n - 2) % mod;
     return 0;
 }
