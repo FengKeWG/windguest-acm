@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 #define int long long
-// #define int __int128
+#define double long double
 #define endl '\n'
 #define N 305
 #define M 100005
@@ -17,18 +17,20 @@ inline int read()
 {
     int x = 0, f = 1;
     char c = getchar();
-    if (c == '-')
+    while (c < '0' || c > '9')
     {
-        f = -1;
+        if (c == '-')
+            f = -1;
         c = getchar();
     }
-    while (isdigit(c))
+    while (c >= '0' && c <= '9')
     {
-        x = (x << 3) + (x << 1) + (c ^ 48);
+        x = (x << 1) + (x << 3) + (c ^ 48);
         c = getchar();
     }
     return x * f;
 }
+
 struct node
 {
     int x, y;
@@ -57,9 +59,9 @@ bool isChui(node p1, node p2, node p3)
     return x1 * x2 + y1 * y2 == 0;
 }
 
-double cal(node a, node b)
+long long cal(node a, node b)
 {
-    return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+    return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 }
 
 signed main()
@@ -85,9 +87,7 @@ signed main()
                 if (isLeft(a[i], a[j], a[k]) == 0)
                     continue;
                 if (isLeft(a[i], a[j], a[k]) < 0 && cal(a[i], a[k]) == cal(a[j], a[k]))
-                {
                     C.push_back(a[k]);
-                }
                 else if (isLeft(a[i], a[j], a[k]) > 0)
                 {
                     if (isChui(a[i], a[j], a[k]))
@@ -99,10 +99,8 @@ signed main()
             int t = C.size();
             for (auto &p : A)
                 for (auto &q : B)
-                {
                     if (cal(p, a[i]) == cal(q, a[j]))
                         ans += t;
-                }
         }
     }
     cout << ans << endl;
